@@ -8,7 +8,7 @@ int main(int argc, char * argv[])
     int startChar = 1;
     while(name[i]!='\0')
     {
-        if (name[i] <= 90 && name[i] >= 65 || name[i]>= 97 && name[i] <= 122)
+        if ((name[i] <= 90 && name[i] >= 65) || (name[i]>= 97 && name[i] <= 122))
         {
             if (startChar == 1)
             {
