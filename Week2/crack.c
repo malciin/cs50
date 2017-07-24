@@ -22,15 +22,6 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-int compare(char * str, char * hash)
-{
-    if (strcmp(crypt(str, "50"), hash) == 0)
-    {
-        return 1;
-    }
-    return 0;
-}
-
 void recursionCrack(char alphabet[], int size, char * str, int index, char * hash)
 {
     for(int i = 0; i<size; i++)
@@ -38,14 +29,12 @@ void recursionCrack(char alphabet[], int size, char * str, int index, char * has
         str[index] = alphabet[i];
         if (str[index+1] == '\0')
         {
-            if (compare(str, hash) == 1)
-            {
+            if (strcmp(crypt(str, "50"), hash) == 0 == 1)
                 printf("%s\n", str);
-            }
         }
         else
         {
-            recursionCrack(alphabet, size, str, index+1, hash);
+            recursionCrack(alphabet, size, str, index+1, hash, cracked);
         }
     }
 }
@@ -58,7 +47,6 @@ void crack(char alphabet[], int size, int length, char * hash)
     str[length] = '\0';
 
     recursionCrack(alphabet, size, str, 0, hash);
-
     free(str);
 }
 
