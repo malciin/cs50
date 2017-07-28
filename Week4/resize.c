@@ -59,6 +59,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Unsupported file format.\n");
         return 4;
     }
+
+    int originalPadding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+    // New file headers
     BITMAPFILEHEADER bfNew = bf;
     BITMAPINFOHEADER biNew = bi;
     
@@ -67,7 +70,6 @@ int main(int argc, char *argv[])
     biNew.biHeight = (int)(biNew.biHeight*factor);
     
     // Set padding and set biSizeImage and bfSize
-    int originalPadding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     int newPadding = (4 - (biNew.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     biNew.biSizeImage = (biNew.biWidth * sizeof(RGBTRIPLE) + newPadding) * abs(biNew.biHeight);
     bfNew.bfSize = biNew.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
@@ -78,21 +80,8 @@ int main(int argc, char *argv[])
     // write outfile's BITMAPINFOHEADER
     fwrite(&biNew, sizeof(BITMAPINFOHEADER), 1, outptr);
 
-    // determine padding for scanlines
-    //printf("Original height: %i\tNew: %i\n", bi.biHeight, biNew.biHeight);
-    //printf("Original width: %i\tNew: %i\n", bi.biWidth, biNew.biWidth);
-    
-    
-    
+    // Row buffor
     RGBTRIPLE * row = malloc(sizeof(RGBTRIPLE) * bi.biWidth);
-    
-    // Load first row from original file
-    for(int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
-    {
-        fread(&row[i], sizeof(RGBTRIPLE), 1, inptr);
-    }
-    // skip over padding, if any
-    fseek(inptr, originalPadding, SEEK_CUR);
     
     float yWsp = 0;
     float xWsp = 0;
@@ -104,13 +93,8 @@ int main(int argc, char *argv[])
     
     for(int i = 0, biNewHeight = abs(biNew.biHeight); i < biNewHeight; i++)
     {
-        // If we are at situation when we exceed original height
-        // then we load to memory another row
-        
-        //printf("if %i == %i\n", (int)(yWsp + (float)bi.biHeight/biNewHeight), (int)yWsp);
-        if (i!=0)
-        {
-        while ((int)(yWsp + yWspDelta) != yCounter)
+        // Load row to buffor or skip some rows if we're making bmp smaller
+        while ((int)(yWsp + yWspDelta) != yCounter || i==0)
         {
             for(int z = 0, biHeight = abs(bi.biHeight); z < biHeight; z++)
             {
@@ -118,14 +102,14 @@ int main(int argc, char *argv[])
             }
             // skip over padding, if any
             fseek(inptr, originalPadding, SEEK_CUR);
-            yCounter++;
+            if (i!=0)
+                yCounter++;
         }
+        if (i!=0)
+            yWsp += yWspDelta;
         
-        yWsp += yWspDelta;
-        }
-        //printf("yWsp: %f\n", yWsp);
+        // Wrote rows
         xWsp = 0;
-        
         for (int j = 0; j < biNew.biWidth; j++)
         {
             fwrite(&row[(int)xWsp], sizeof(RGBTRIPLE), 1, outptr);
