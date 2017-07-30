@@ -1,6 +1,12 @@
 # CS50
 
 ### This is my solutions for problems set in that course. All solutions are checked by **check50** if check is provided for certain problem.
+>Week1
+- **Hello.c**
+- **Water.c**
+- **Mario.c** - More comfortable
+- **Credit.c** - More comfortable
+
 > Week2
 - **Initials.c** - More comfortable
 - **Vigenere.c** - Less comfortable
