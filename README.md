@@ -20,3 +20,6 @@
 - **Whodunit.c** - verdict in "whodunitVerdict.bmp"
 - **Resize.c** - more comfortable
 - **Recover.c** - jpg recovering
+
+> Week5
+- **Speller** - Both trie (less efficient) and hashtable (more efficient) versions

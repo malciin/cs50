@@ -167,14 +167,10 @@ void init(void)
     // Initiialize all tiles with decreased order (0 represents blank tile)
     for(int y = 0; y < d; y++)
         for(int x = 0; x < d; x++, value--)
-        {
             board[y][x] = value;
-        }
     // Swap before before last with before last (the last is blank) if the height and width of the board are even
     if (d%2 == 0)
-    {
         swap(&board[d-1][d-3], &board[d-1][d-2]);
-    }
 }
 
 /**

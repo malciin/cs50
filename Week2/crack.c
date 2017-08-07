@@ -22,7 +22,7 @@ int main(int argc, char * argv[])
     char alphabet[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
-    // Try crack 1length passwrd, next 2length next... to 4 length
+    // Try crack one char passwrd, next two char next... to 4 chars
     for(int i = 1; i <= 4; i++)
         crack(alphabet, sizeof(alphabet), i, argv[1]);
     return 0;
@@ -42,13 +42,13 @@ void recursionCrack(char alphabet[], int size, char * str, int index, char * has
         // hash check
         if (str[index+1] == '\0')
         {
-            if (strcmp(crypt(str, "50"), hash) == 0 == 1)
+            if (strcmp(crypt(str, "50"), hash) == 0)
                 printf("%s\n", str);
         }
         // We call recursionCrack on next char in "str"
         else
         {
-            recursionCrack(alphabet, size, str, index+1, hash, cracked);
+            recursionCrack(alphabet, size, str, index+1, hash);
         }
     }
 }
@@ -63,4 +63,3 @@ void crack(char alphabet[], int size, int length, char * hash)
     recursionCrack(alphabet, size, str, 0, hash);
     free(str);
 }
-
