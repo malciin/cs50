@@ -3,7 +3,7 @@
  * dictionary.h IS SAME AS PROVIDED BY CS50
  * SO JUST COPY AND PASTE THIS CODE INTO dictionary.c
 
- * TRIE VERSION
+ * HASHTABLE VERSION
  */
 
 #include <stdbool.h>
