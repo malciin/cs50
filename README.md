@@ -22,4 +22,4 @@
 - **Recover.c** - jpg recovering
 
 > Week5
-- **Speller** - Both trie (less efficient) and hashtable (more efficient) versions
+- **Speller** - Both trie and hashtable versions
