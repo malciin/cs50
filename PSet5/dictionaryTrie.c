@@ -132,7 +132,7 @@ void unloadRecursive(dict * node)
 bool unload(void)
 {
     unloadRecursive(ROOT);
-    if (WORDS == 0)
-        return true;
+    if (WORDS != 0) // something wrong happend
+        return false;
     return false;
 }
