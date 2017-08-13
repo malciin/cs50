@@ -12,7 +12,12 @@ int getDigit(unsigned long long number, int digit);
 int main()
 {
     printf("Number: ");
+    // Note:
+    // Should have used get_string and then I won't need
+    // getDigit function and program will be quicker
+    // I realized that when I implement this again in python
     long long number = get_long_long();
+
     if (verify(number) == 1)
     {
         int ID = getDigit(number, length(number));
