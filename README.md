@@ -1,4 +1,4 @@
-# CS50
+# CS50 2017
 
 ### This is my solutions for problems set in that course. All solutions are checked by **check50** if check is provided for certain problem.
 >Problem set 1
@@ -31,3 +31,4 @@
 
 > Problem set 7
 - **C$50 Finance** - "Personal touch" - Empower users to buy more shares or sell shares of stocks they already own via index itself, without having to type stocks' symbols manually.
+        

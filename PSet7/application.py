@@ -55,6 +55,7 @@ def index():
 def buy():
     """Buy shares of stock."""
     if request.method == "POST":
+        ### Form validation
         stockSymbol = request.form.get("stockSymbol").upper()
         stock = lookup(stockSymbol)
         if not stock:
@@ -64,28 +65,37 @@ def buy():
         ammount = float(request.form.get("ammount"))
         if ammount <= 0:
             return apology("ammount must be greater than 0")
+        ###
         id = session["user_id"]
+
         row = db.execute("SELECT * FROM symbols WHERE symbol = :symbol", symbol = stockSymbol)
+        # If we do not have full name of that symbol in our database we add that
         if not row:
             db.execute("INSERT INTO symbols (symbol, name) VALUES (:symbol, :name)",
-            symbol = stockSymbol, name = stock["name"])
-        row = db.execute("SELECT * FROM users WHERE id = :id",
-        id = id)
+                        symbol = stockSymbol, name = stock["name"])
+
+        row = db.execute("SELECT * FROM users WHERE id = :id", id = id)
 
         cash = float(row[0]["cash"])
         cash -= float(stock["price"]) * ammount
         if cash < 0:
             return apology("don't have so much cash")
 
-        row = db.execute("SELECT * FROM portfolio WHERE user_id = :id AND stockSymbol = :stockSymbol", id = id, stockSymbol = stockSymbol)
+        row = db.execute("SELECT * FROM portfolio WHERE user_id = :id AND stockSymbol = :stockSymbol", 
+                        id = id, stockSymbol = stockSymbol)
         if not row:
-            db.execute("INSERT INTO portfolio (user_id, stockSymbol, ammount) VALUES (:user_id, :stockSymbol, :ammount)", user_id = id, stockSymbol = stockSymbol, ammount = ammount)
+            db.execute("INSERT INTO portfolio (user_id, stockSymbol, ammount) VALUES (:user_id, :stockSymbol, :ammount)", 
+                        user_id = id, stockSymbol = stockSymbol, ammount = ammount)
         else:
-            db.execute("UPDATE portfolio SET ammount = :ammount WHERE user_id = :user_id AND stockSymbol = :stockSymbol", ammount = ammount + int(row[0]["ammount"]), user_id = id, stockSymbol = stockSymbol)
+            db.execute("UPDATE portfolio SET ammount = :ammount WHERE user_id = :user_id AND stockSymbol = :stockSymbol", 
+                        ammount = ammount + int(row[0]["ammount"]), user_id = id, stockSymbol = stockSymbol)
+                    
         db.execute("UPDATE users SET cash = :cash WHERE id = :id", cash=cash, id = id)
+
+        # History transaction
         db.execute("INSERT INTO history (user_id, stockSymbol, price, ammount, balanceAfter, date) VALUES (:user_id, :stockSymbol, :price, :ammount, :balanceAfter, datetime())", 
-        user_id = id, stockSymbol = stockSymbol, price = float(stock["price"]), ammount= ammount, 
-        balanceAfter = cash)
+                    user_id = id, stockSymbol = stockSymbol, price = float(stock["price"]), ammount= ammount, balanceAfter = cash)
+        
         flash("You succesfully bought {} {} stock".format(int(ammount), stockSymbol))
         return redirect(url_for("index"))
     rows = db.execute("SELECT stockSymbol FROM portfolio WHERE user_id = :id", id = session["user_id"])
@@ -154,9 +164,12 @@ def quote():
     """Get stock quote."""
 
     if request.method == "POST":
+        
         stocks = lookup(request.form.get("stockSymbol").upper())
         if not stocks:
             return apology("{} not found".format(request.form.get("stockSymbol")))
+
+        # If we do not have full name of that symbol in our database we add that
         row = db.execute("SELECT * FROM symbols WHERE symbol = :symbol", symbol = request.form.get("stockSymbol").upper())
         if not row:
             db.execute("INSERT INTO symbols (symbol, name) VALUES (:symbol, :name)", symbol = request.form.get("stockSymbol").upper(),
@@ -196,11 +209,13 @@ def register():
 def sell():
     """Sell shares of stock."""
     if request.method == "POST":
+
+        ### Form validation
         stock = lookup(request.form.get("stockSymbol"))
         if not stock:
             return apology("cannot found that stock")
         ammount = int(request.form.get("ammount"))
-        print("DEBUG!!!!!! {}".format(ammount))
+
         if ammount <= 0:
             return apology("Amount must be greater than 0")
         row = db.execute("SELECT ammount FROM portfolio WHERE user_id = :id", id = session["user_id"])
@@ -208,26 +223,33 @@ def sell():
             return apology("You do not have that")
 
         howMuchHave = int(row[0]["ammount"])
-        print("DEBUG!!!!!!!!!!!!!!! " + request.form.get("stockSymbol"))
         if ammount > howMuchHave:
             return apology("You do not have that much stock")
+        ###
 
+        # If we want sell all stocks then delete that stock from database portfolio
         if howMuchHave == ammount:
-            db.execute("DELETE FROM portfolio WHERE user_id = :id AND stockSymbol = :stock", id = session["user_id"], stock = request.form.get("stockSymbol"))
+            db.execute("DELETE FROM portfolio WHERE user_id = :id AND stockSymbol = :stock", 
+                        id = session["user_id"], stock = request.form.get("stockSymbol"))
+        # Else change ammount of that stock in our database
         else:
-            print("JESTEM TUTAJ!")
-            db.execute("UPDATE portfolio SET ammount = :ammount WHERE user_id = :id AND stockSymbol = :stock", ammount = howMuchHave - ammount, id = session["user_id"], stock = request.form.get("stockSymbol"))
+            db.execute("UPDATE portfolio SET ammount = :ammount WHERE user_id = :id AND stockSymbol = :stock", 
+                        ammount = howMuchHave - ammount, id = session["user_id"], stock = request.form.get("stockSymbol"))
         
+        # Get actuall cash
         cash = float(db.execute("SELECT cash FROM users WHERE id = :id", id = session["user_id"])[0]["cash"])
-        db.execute("UPDATE users SET cash = :cash WHERE id = :id", cash = cash + ammount * float(stock["price"]), id = session["user_id"])
-        
+        # Update our cash
+        db.execute("UPDATE users SET cash = :cash WHERE id = :id", 
+                    cash = cash + ammount * float(stock["price"]), id = session["user_id"])
+        # History transaction
         db.execute("INSERT INTO history (user_id, stockSymbol, price, ammount, balanceAfter, date) VALUES (:user_id, :stockSymbol, :price, :ammount, :balanceAfter, datetime())", 
-        user_id = session["user_id"], stockSymbol = request.form.get("stockSymbol"), price = ammount * float(stock["price"]), ammount = -ammount, balanceAfter = cash + ammount * float(stock["price"]))
+                    user_id = session["user_id"], stockSymbol = request.form.get("stockSymbol"), price = ammount * float(stock["price"]), ammount = -ammount, balanceAfter = cash + ammount * float(stock["price"]))
         
         flash("Succesfully sold {} {} for {} giving total cash {}".format(ammount, request.form.get("stockSymbol"), usd(float(stock["price"])), usd(ammount * float(stock["price"]))))
         return redirect(url_for("index"))
-    rows = db.execute("SELECT stockSymbol FROM portfolio WHERE user_id = :id", id = session["user_id"])
 
+    # Set form list to have only owned stocks
+    rows = db.execute("SELECT stockSymbol FROM portfolio WHERE user_id = :id", id = session["user_id"])
     return render_template("sell.html", availableStocks = rows)
 	
 if __name__ == "__main__":
