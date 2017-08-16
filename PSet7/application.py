@@ -81,6 +81,7 @@ def buy():
         if cash < 0:
             return apology("don't have so much cash")
 
+        # Check if we already own that stock
         row = db.execute("SELECT * FROM portfolio WHERE user_id = :id AND stockSymbol = :stockSymbol", 
                         id = id, stockSymbol = stockSymbol)
         if not row:
