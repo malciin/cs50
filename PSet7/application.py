@@ -224,7 +224,7 @@ def sell():
         db.execute("INSERT INTO history (user_id, stockSymbol, price, ammount, balanceAfter, date) VALUES (:user_id, :stockSymbol, :price, :ammount, :balanceAfter, datetime())", 
         user_id = session["user_id"], stockSymbol = request.form.get("stockSymbol"), price = ammount * float(stock["price"]), ammount = -ammount, balanceAfter = cash + ammount * float(stock["price"]))
         
-        flash("Succesfully sold {} for {} giving total cash {}".format(request.form.get("stockSymbol"), usd(float(stock["price"])), usd(ammount * float(stock["price"]))))
+        flash("Succesfully sold {} {} for {} giving total cash {}".format(ammount, request.form.get("stockSymbol"), usd(float(stock["price"])), usd(ammount * float(stock["price"]))))
         return redirect(url_for("index"))
     rows = db.execute("SELECT stockSymbol FROM portfolio WHERE user_id = :id", id = session["user_id"])
 
