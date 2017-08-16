@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Main page
+{% endblock %}
+
+{% block main %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th class = "bold">TOTAL</th>
+                <th>Sell/Buy</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <td class = "bold">Cash:</td>
+                <td class = "bold">{{ cash }}</td>
+                <td colspan="2"></td>
+                <td class = "bold">{{ totalMoney }}</td>
+                <td></td>
+            </tr>
+        </tfoot>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td>{{ stock.stockSymbol }}</td>
+                <td>{{ stock.name }}</td>
+                <td>{{ stock.ammount }}</td>
+
+                <td>{{ stock.price }}</td>
+                <td class = "bold">{{ stock.total }}</td>
+                <td>
+                    <form method="post" class="form-inline">
+                        <fieldset>
+                            <input type="hidden" name="stockSymbol" value="{{ stock.stockSymbol }}" />
+                            <div class="form-group">
+                                <input autocomplete="off" autofocus class="form-control" name="ammount" type="number" style="width: 100px"/>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-default" type="submit" formaction="{{ url_for('buy') }}">Buy</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-default" type="submit" formaction="{{ url_for('sell') }}">Sell</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
